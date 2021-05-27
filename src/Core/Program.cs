@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 using oauth2testbed.Database;
 using System;
 
-namespace oauth2testbed
+namespace oauth2testbed.Core
 {
     public class Program
     {

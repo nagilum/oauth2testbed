@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace oauth2testbed
+namespace oauth2testbed.Core
 {
     public class Startup
     {
