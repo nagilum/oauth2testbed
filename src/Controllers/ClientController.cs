@@ -6,6 +6,7 @@ using oauth2testbed.Core;
 using oauth2testbed.Database;
 using oauth2testbed.Database.Tables;
 using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -63,7 +64,7 @@ namespace oauth2testbed.Controllers
                 var client = new Client
                 {
                     Identifier = ident,
-                    Created = DateTimeOffset.Now.ToString("yyyy-MM-ddTHH\\:mm\\:ss.fffffffzzz"),
+                    Created = DateTimeOffset.Now.ToString("o", CultureInfo.InvariantCulture),
                     Flow = payload.Flow,
                     ClientId = Tools.GenerateRandomString(16),
                     ClientSecret = Tools.GenerateRandomString(64),
