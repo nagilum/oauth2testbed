@@ -6,7 +6,6 @@ using oauth2testbed.Core;
 using oauth2testbed.Database;
 using oauth2testbed.Database.Tables;
 using System;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -44,7 +43,7 @@ namespace oauth2testbed.Controllers
                 if (payload.Flow != "code" &&
                     payload.Flow != "password")
                 {
-                    throw new Exception("Only valid values for 'flow' are 'code' or 'password'.");
+                    throw new Exception("'flow' is required and only accepts the values 'code' or 'password'.");
                 }
 
                 await using var db = new DatabaseContext();
@@ -64,7 +63,7 @@ namespace oauth2testbed.Controllers
                 var client = new Client
                 {
                     Identifier = ident,
-                    Created = DateTime.Now.ToString(CultureInfo.InvariantCulture),
+                    Created = DateTimeOffset.Now.ToString("yyyy-MM-ddTHH\\:mm\\:ss.fffffffzzz"),
                     Flow = payload.Flow,
                     ClientId = Tools.GenerateRandomString(16),
                     ClientSecret = Tools.GenerateRandomString(64),
@@ -122,7 +121,7 @@ namespace oauth2testbed.Controllers
                 if (payload.Flow != "code" &&
                     payload.Flow != "password")
                 {
-                    throw new Exception("Only valid values for 'flow' are 'code' or 'password'.");
+                    throw new Exception("'flow' is required and only accepts the values 'code' or 'password'.");
                 }
 
                 await using var db = new DatabaseContext();
