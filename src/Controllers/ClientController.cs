@@ -32,6 +32,46 @@ namespace oauth2testbed.Controllers
         }
 
         /// <summary>
+        /// Get a specific client.
+        /// </summary>
+        /// <param name="id">Id of client.</param>
+        /// <returns>Found client.</returns>
+        [HttpGet]
+        [Route("{id}")]
+        public async Task<ActionResult> Get([FromRoute] string id)
+        {
+            try
+            {
+                await using var db = new DatabaseContext();
+
+                var client = await db.Clients
+                    .FirstOrDefaultAsync(n => n.Identifier == id);
+
+                if (client == null)
+                {
+                    throw new FileNotFoundException($"Unable to find Client with identifier {id}");
+                }
+
+                return this.Ok(client.CompileApiResponseObject(this.Request));
+            }
+            catch (FileNotFoundException ex)
+            {
+                this.Logger.LogCritical(ex, ex.Message);
+
+                return this.NotFound(null);
+            }
+            catch (Exception ex)
+            {
+                this.Logger.LogCritical(ex, ex.Message);
+
+                return this.BadRequest(new
+                {
+                    message = ex.Message
+                });
+            }
+        }
+
+        /// <summary>
         /// Create a new client.
         /// </summary>
         /// <param name="payload">Client information.</param>
@@ -81,20 +121,7 @@ namespace oauth2testbed.Controllers
 
                 this.Logger.LogInformation($"Created new client with identifier {client.Identifier}");
 
-                return this.Ok(new
-                {
-                    id = client.Identifier,
-                    created = client.Created,
-                    flow = client.Flow,
-                    authorizeUrl = $"https://{this.Request.Host}/authorize",
-                    accessTokenUrl = $"https://{this.Request.Host}/api/oauth2/authorize/{client.Flow}-flow",
-                    clientId = client.ClientId,
-                    clientSecret = client.ClientSecret,
-                    username = client.Username,
-                    password = client.Password,
-                    scope = client.Scope,
-                    redirectUrls = client.RedirectUrlsDeserialized()
-                });
+                return this.Ok(client.CompileApiResponseObject(this.Request));
             }
             catch (Exception ex)
             {
