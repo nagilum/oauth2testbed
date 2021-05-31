@@ -1,13 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using oauth2testbed.Controllers.Exceptions;
 using oauth2testbed.Controllers.Payloads;
 using oauth2testbed.Core;
 using oauth2testbed.Database;
 using oauth2testbed.Database.Tables;
 using System;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -49,12 +49,12 @@ namespace oauth2testbed.Controllers
 
                 if (client == null)
                 {
-                    throw new FileNotFoundException($"Unable to find Client with identifier {id}");
+                    throw new ClientNotFoundException($"Unable to find Client with identifier {id}");
                 }
 
                 return this.Ok(client.CompileApiResponseObject(this.Request));
             }
-            catch (FileNotFoundException ex)
+            catch (ClientNotFoundException ex)
             {
                 this.Logger.LogCritical(ex, ex.Message);
 
@@ -90,15 +90,18 @@ namespace oauth2testbed.Controllers
                 await using var db = new DatabaseContext();
 
                 var ident = Guid.NewGuid().ToString();
+                var clientId = Tools.GenerateRandomString(16);
 
                 while (true)
                 {
-                    if (!db.Clients.Any(n => n.Identifier == ident))
+                    if (!db.Clients.Any(n => n.Identifier == ident) &&
+                        !db.Clients.Any(n => n.ClientId == clientId))
                     {
                         break;
                     }
 
                     ident = Guid.NewGuid().ToString();
+                    clientId = Tools.GenerateRandomString(16);
                 }
 
                 var client = new Client
@@ -159,7 +162,7 @@ namespace oauth2testbed.Controllers
 
                 if (client == null)
                 {
-                    throw new FileNotFoundException($"Unable to find Client with identifier {id}");
+                    throw new ClientNotFoundException($"Unable to find Client with identifier {id}");
                 }
 
                 client.Flow = payload.Flow;
@@ -173,7 +176,7 @@ namespace oauth2testbed.Controllers
 
                 return this.Ok(null);
             }
-            catch (FileNotFoundException ex)
+            catch (ClientNotFoundException ex)
             {
                 this.Logger.LogCritical(ex, ex.Message);
 
@@ -208,7 +211,7 @@ namespace oauth2testbed.Controllers
 
                 if (client == null)
                 {
-                    throw new FileNotFoundException($"Unable to find Client with identifier {id}");
+                    throw new ClientNotFoundException($"Unable to find Client with identifier {id}");
                 }
 
                 db.Clients.Remove(client);
@@ -219,7 +222,7 @@ namespace oauth2testbed.Controllers
 
                 return this.Ok(null);
             }
-            catch (FileNotFoundException ex)
+            catch (ClientNotFoundException ex)
             {
                 this.Logger.LogCritical(ex, ex.Message);
 

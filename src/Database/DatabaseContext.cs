@@ -46,6 +46,11 @@ namespace oauth2testbed.Database
         /// </summary>
         public DbSet<Client> Clients { get; set; }
 
+        /// <summary>
+        /// Attempts at login.
+        /// </summary>
+        public DbSet<LoginAttempt> LoginAttempts { get; set; }
+
         #endregion
 
         #region Helper functions
@@ -66,8 +71,8 @@ namespace oauth2testbed.Database
             connection.Open();
 
             // Create the Clients table.
-            using var command = connection.CreateCommand();
-            command.CommandText = 
+            using var cmdClients = connection.CreateCommand();
+            cmdClients.CommandText = 
                 "CREATE TABLE IF NOT EXISTS [Clients] (" +
                 "  [Id] INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT," +
                 "  [Identifier] NVARCHAR(64) NOT NULL," +
@@ -81,7 +86,21 @@ namespace oauth2testbed.Database
                 "  [RedirectUrls] NVARCHAR(2048)" +
                 ");";
 
-            command.ExecuteNonQuery();
+            cmdClients.ExecuteNonQuery();
+
+            // Create the LoginAttempts table.
+            using var cmdLoginAttempts = connection.CreateCommand();
+            cmdLoginAttempts.CommandText =
+                "CREATE TABLE IF NOT EXISTS [LoginAttempts] (" +
+                "  [Id] INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT," +
+                "  [ClientDbId] INTEGER NOT NULL," +
+                "  [Created] NVARCHAR(32) NOT NULL," +
+                "  [AuthCode] NVARCHAR(64) NOT NULL," +
+                "  [AccessToken] NVARCHAR(128) NULL," +
+                "  [AccessTokenExpiresIn] INT NULL" +
+                ");";
+
+            cmdLoginAttempts.ExecuteNonQuery();
         }
 
         #endregion
